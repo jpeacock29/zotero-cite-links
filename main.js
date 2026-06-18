@@ -1,35 +1,56 @@
 'use strict';
 
-const { Plugin, PluginSettingTab, Setting, Notice, MarkdownView, Platform, requestUrl } = require('obsidian');
+const { Plugin, PluginSettingTab, Setting, Notice, MarkdownView, Platform } = require('obsidian');
 const { Decoration, ViewPlugin } = require('@codemirror/view');
 const { RangeSetBuilder } = require('@codemirror/state');
 const { syntaxTree, tokenClassNodeProp } = require('@codemirror/language');
+const http = require('http');
 
 const CITE_RX = /(?<![A-Za-z0-9_@.])@([A-Za-z][A-Za-z0-9_:.\-]*[A-Za-z0-9])/g;
 const LOCATOR_RX = /^\s*,\s*(?:pp?\.\s*)?(\d+)(?![\d:])/;
 const IGNORE_TOKENS = /code|math|templater|hashtag/;
+const BBT_PATH = '/better-bibtex/json-rpc';
+const RPC_TIMEOUT_MS = 2000;
 
 const DEFAULT_SETTINGS = {
   zoteroPort: 23119,
   modifier: 'mod',
 };
 
-async function bbtRpc(port, method, params) {
-  try {
-    const res = await requestUrl({
-      url: `http://127.0.0.1:${port}/better-bibtex/json-rpc`,
-      method: 'POST',
-      contentType: 'application/json',
-      body: JSON.stringify({ jsonrpc: '2.0', method, params, id: 1 }),
-      throw: false,
-    });
-    if (res.status >= 200 && res.status < 300) {
-      return res.json?.result ?? null;
-    }
-  } catch {
-    // Connection refused / Zotero not running — fall through.
-  }
-  return null;
+// Node `http` is used (not Obsidian's `requestUrl`) because Better BibTeX's
+// JSON-RPC endpoint closes the connection with ERR_EMPTY_RESPONSE when called
+// via Electron's `net` module — a known incompatibility with `requestUrl`.
+// This plugin is desktop-only, so Node modules are available.
+function bbtRpc(port, method, params) {
+  return new Promise((resolve) => {
+    const body = JSON.stringify({ jsonrpc: '2.0', method, params, id: 1 });
+    const req = http.request(
+      {
+        hostname: '127.0.0.1',
+        port,
+        path: BBT_PATH,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+          Accept: 'application/json',
+        },
+        timeout: RPC_TIMEOUT_MS,
+      },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => {
+          try { resolve(JSON.parse(data).result); }
+          catch { resolve(null); }
+        });
+      }
+    );
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.write(body);
+    req.end();
+  });
 }
 
 function computePageParam(annotations, requestedPage) {
