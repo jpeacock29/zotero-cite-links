@@ -31,10 +31,6 @@ Obsidian's citation-aware plugins (e.g. Pandoc Reference List) show a bibliograp
 - **Command palette** → "Zotero Cite Links: Open citation at cursor in Zotero" — opens the citekey nearest the cursor without clicking. Useful in source mode or when you'd rather use a hotkey.
 - **Command palette** → "Zotero Cite Links: Refresh Zotero library list" — re-queries Better BibTeX for the list of libraries to search (groups and your personal library). Run after adding a new Zotero group.
 
-## How locator resolution works
-
-When the citation includes a locator, the plugin asks Better BibTeX for the item's attachments and reads each PDF annotation's `annotationPageLabel`. If the locator matches a labeled page (e.g. roman-numeral preface page `iv`), it opens at that PDF page index. Otherwise it passes the locator straight through. This matches the behavior of the companion VSCode extension this plugin is ported from.
-
 ## Settings
 
 - **Zotero port** — Better BibTeX JSON-RPC port. Default `23119`.
@@ -43,7 +39,3 @@ When the citation includes a locator, the plugin asks Better BibTeX for the item
 ## Acknowledgements
 
 The Better BibTeX integration approach draws on patterns from [mgmeyers/obsidian-pandoc-reference-list](https://github.com/mgmeyers/obsidian-pandoc-reference-list).
-
-## License
-
-MIT.
