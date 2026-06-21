@@ -137,6 +137,10 @@ module.exports = class ZoteroCiteLinks extends Plugin {
 
     this.registerDomEvent(document, 'mousedown', this.onMouseDown, { capture: true });
     this.registerDomEvent(document, 'click', this.onClick, { capture: true });
+    this.registerDomEvent(window, 'keydown', this.syncModClass);
+    this.registerDomEvent(window, 'keyup', this.syncModClass);
+    this.registerDomEvent(window, 'blur', this.clearModClass);
+    this.syncModClass();
 
     this.addCommand({
       id: 'open-at-cursor',
@@ -157,6 +161,10 @@ module.exports = class ZoteroCiteLinks extends Plugin {
         new Notice(`zotero-cite-links: searching ${this.libraryNames.join(', ')}`);
       },
     });
+  }
+
+  onunload() {
+    document.body.classList.remove('zcl-mod-held');
   }
 
   async loadSettings() {
@@ -271,6 +279,15 @@ module.exports = class ZoteroCiteLinks extends Plugin {
     if (this.settings.modifier === 'none') return true;
     return Platform.isMacOS ? evt.metaKey : evt.ctrlKey;
   }
+
+  syncModClass = (evt) => {
+    const held = this.settings.modifier === 'none' || (evt && this.isOpenModifier(evt));
+    document.body.classList.toggle('zcl-mod-held', held);
+  };
+
+  clearModClass = () => {
+    document.body.classList.toggle('zcl-mod-held', this.settings.modifier === 'none');
+  };
 
   hitFromTarget(target) {
     if (!(target instanceof Element)) return null;

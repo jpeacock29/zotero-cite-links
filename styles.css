@@ -1,14 +1,17 @@
 .zcl-cite {
-  cursor: pointer;
+  color: var(--text-normal);
   text-decoration: underline;
   text-decoration-style: dotted;
   text-decoration-color: var(--text-faint);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  color: var(--text-normal);
 }
 
-.zcl-cite:hover {
+/* Solid underline + pointer cursor only while the click modifier is held
+   AND the cursor is over a citekey — the body class is toggled from
+   keydown/keyup listeners in main.js. */
+body.zcl-mod-held .zcl-cite:hover {
+  cursor: pointer;
   text-decoration-style: solid;
   text-decoration-color: var(--text-muted);
 }
