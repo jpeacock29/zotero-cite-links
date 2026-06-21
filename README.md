@@ -13,6 +13,8 @@ Obsidian's citation-aware plugins (e.g. Pandoc Reference List) show a bibliograp
 - Obsidian 1.4.0+ (desktop only — uses Node `http` against localhost).
 - [Zotero](https://www.zotero.org/) with the [Better BibTeX](https://retorque.re/zotero-better-bibtex/) extension installed and running.
 
+This plugin communicates only with your local Zotero/Better BibTeX over `127.0.0.1`, to resolve citation keys to their PDF attachments and page locators — no data leaves your machine, and it makes no other network requests.
+
 ## Installation
 
 ### From the community plugin directory
