@@ -19,7 +19,7 @@ This plugin communicates only with your local Zotero/Better BibTeX over `127.0.0
 
 ### From the community plugin directory
 
-*(pending review — for now, install manually below.)*
+In Obsidian, open **Settings → Community plugins → Browse**, search for **Zotero Cite Links**, then **Install** and **Enable**. See the [directory listing](https://community.obsidian.md/plugins/zotero-cite-links).
 
 ### Manual
 
